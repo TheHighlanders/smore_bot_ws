@@ -1,0 +1,51 @@
+# ROS 2 build directories
+build/
+install/
+log/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+*.egg-info/
+.eggs/
+*.egg
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+.directory
+.Trash*
+*~
+
+# Colcon-related
+.colcon_cd_root
+.colcon/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# Log files
+*.log
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Other common exclusions
+core
+*.bag
+*.db
