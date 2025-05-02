@@ -81,6 +81,8 @@ Manual setup for Linux Dev:
 
 ## Running the SMORE Bot System
 
+### Option 1: Start Components Individually
+
 To run the complete SMORE Bot system, you need to start three components:
 
 1. **State Manager** - The core node that manages robot state:
@@ -103,6 +105,29 @@ To run the complete SMORE Bot system, you need to start three components:
 
 After starting all three components, open your web browser to http://localhost:8080 to view the dashboard.
 
+### Option 2: Using the All-in-One Startup Script
+
+A convenience script is provided to start all components in a single terminal:
+
+1. **Make the script executable** (first time only):
+    ```bash
+    chmod +x ~/smore_bot_ws/start_smore_bot.sh
+    ```
+
+2. **Run the script**:
+    ```bash
+    cd ~/smore_bot_ws
+    ./start_smore_bot.sh
+    ```
+
+The script will:
+- Start all three components (rosbridge, state_manager, web_server)
+- Show all output in a single terminal
+- Allow you to stop everything with a single Ctrl+C
+- Automatically clean up all processes when terminated
+
+This is the recommended way to start the system for regular use.
+
 ### Troubleshooting
 
 If you see a "Connecting to ROS..." message that doesn't change:
@@ -112,6 +137,5 @@ If you see a "Connecting to ROS..." message that doesn't change:
 
 If you encounter shared memory errors in the terminal:
 ```bash
-# Clean up any stale shared memory segments
 rm -rf /dev/shm/fastrtps_*
 ```
