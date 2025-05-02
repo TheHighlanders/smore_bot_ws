@@ -94,6 +94,7 @@ To run the complete SMORE Bot system, you need to start three components:
 2. **Rosbridge Server** - Connects ROS to web applications:
     ```bash
     # Terminal 2
+    pkill -f rosbridge_websocket
     ros2 launch rosbridge_server rosbridge_websocket_launch.xml
     ```
 
@@ -139,3 +140,18 @@ If you encounter shared memory errors in the terminal:
 ```bash
 rm -rf /dev/shm/fastrtps_*
 ```
+
+If you encounter "Unable to start server: [Errno 98] Address already in use Retrying in 5.0s.":
+```bash
+pkill -f rosbridge_websocket
+sudo lsof -i :9090
+# Look for the PID of the process using port 9090
+sudo kill -s 4 <PID>
+```
+
+If you encounter throttling on Firefox: _EDIT: This is a active bug in the code and this will not fix it_
+- Type about:config in the Firefox address bar
+- Accept the warning
+- Search for dom.timeout.throttling_delay
+- Set its value to 0
+- Optionally search for and set privacy.reduceTimerPrecision to false

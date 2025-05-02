@@ -4,6 +4,7 @@
 <head>
     <title>SMORE Bot Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="application-name" content="SMORE Dashboard">
     <script src="https://cdn.jsdelivr.net/npm/roslib@1.3.0/build/roslib.min.js"></script>
     <style>
         body {
@@ -73,6 +74,17 @@
             background-color: #f5b7b1;
             color: #c0392b;
         }
+        
+        #logs {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -103,109 +115,252 @@
             <h2>Temperature</h2>
             <div id="temperature" class="value">Waiting...</div>
         </div>
+        
+        <div id="logs"></div>
     </div>
 
     <script>
-        document.addEventListener('visibilitychange', function () {
-            if (document.visibilityState === 'visible') {
-                console.log('Page is now visible, ensuring connection');
-                // Force reconnection if needed
-                if (!ros.isConnected) {
-                    ros.connect('ws://' + window.location.hostname + ':9090');
-                }
+        var worker = new Worker('worker.js');
+        worker.onmessage = function(e) {
+            if (e.data.type === 'keepalive') {
+                // Force browser to process any queued messages
+                window.dispatchEvent(new CustomEvent('worker-ping'));
             }
-        });
+        };
+        // Store topic subscribers to properly clean them up
+        var stateListener, healthListener, batteryListener, temperatureListener;
 
+        // Initialize ROS connection
         var ros = new ROSLIB.Ros({
             url: 'ws://' + window.location.hostname + ':9090'
         });
 
-        ros.on('connection', function () {
-            console.log('Connected to websocket server.');
-            document.getElementById('connection-status').className = 'connected';
-            document.getElementById('connection-status').textContent = 'Connected to ROS';
-        });
+        // Setup ROS callbacks
+        function setupRosCallbacks() {
+            ros.on('connection', function () {
+                console.log('✅ Connected to ROS WebSocket server at ' + new Date().toLocaleTimeString());
+                document.getElementById('connection-status').className = 'connected';
+                document.getElementById('connection-status').textContent = 'Connected to ROS';
+                connectionActive = true;
+                lastUpdateTime = Date.now();
+            });
 
-        ros.on('error', function (error) {
-            console.log('Error connecting to websocket server: ', error);
-            document.getElementById('connection-status').className = 'disconnected';
-            document.getElementById('connection-status').textContent = 'Error connecting to ROS';
-        });
+            ros.on('error', function (error) {
+                console.log('❌ Error connecting to WebSocket server: ', error);
+                document.getElementById('connection-status').className = 'disconnected';
+                document.getElementById('connection-status').textContent = 'Error connecting to ROS';
+                connectionActive = false;
 
-        ros.on('close', function () {
-            console.log('Connection to websocket server closed.');
-            document.getElementById('connection-status').className = 'disconnected';
-            document.getElementById('connection-status').textContent = 'Connection closed';
-        });
+                setTimeout(function () {
+                    ros.connect('ws://' + window.location.hostname + ':9090');
+                }, 3000);
+            });
 
-        // State topic subscriber
-        var stateTopic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/smore_bot/state',
-            messageType: 'std_msgs/String'
-        });
+            ros.on('close', function () {
+                console.log('🔄 Connection to WebSocket server closed at ' + new Date().toLocaleTimeString());
+                document.getElementById('connection-status').className = 'disconnected';
+                document.getElementById('connection-status').textContent = 'Connection closed';
+                connectionActive = false;
 
-        stateTopic.subscribe(function (message) {
-            document.getElementById('state').textContent = message.data;
-        });
+                // Clean up subscribers
+                if (stateListener) stateListener.unsubscribe();
+                if (healthListener) healthListener.unsubscribe();
+                if (batteryListener) batteryListener.unsubscribe();
+                if (temperatureListener) temperatureListener.unsubscribe();
 
-        // Health topic subscriber
-        var healthTopic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/smore_bot/system_health',
-            messageType: 'std_msgs/Bool'
-        });
-
-        healthTopic.subscribe(function (message) {
-            const healthElement = document.getElementById('health');
-            if (message.data) {
-                healthElement.textContent = "OK";
-                healthElement.className = "value status-good";
-            } else {
-                healthElement.textContent = "ERROR";
-                healthElement.className = "value status-error";
-            }
-        });
-
-        // Battery topic subscriber
-        var batteryTopic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/smore_bot/battery_level',
-            messageType: 'std_msgs/Float32'
-        });
-
-        batteryTopic.subscribe(function (message) {
-            const batteryElement = document.getElementById('battery');
-            batteryElement.textContent = message.data.toFixed(1) + "%";
-            if (message.data > 80) {
-                batteryElement.className = "value status-good";
-            } else if (message.data > 40) {
-                batteryElement.className = "value status-warning";
-            } else {
-                batteryElement.className = "value status-error";
-            }
-        });
-
-        // Temperature topic subscriber
-        var temperatureTopic = new ROSLIB.Topic({
-            ros: ros,
-            name: '/smore_bot/temperature',
-            messageType: 'std_msgs/Float32'
-        });
-
-        temperatureTopic.subscribe(function (message) {
-            document.getElementById('temperature').textContent = message.data.toFixed(1) + "°F";
-        });
-
-        function keepAlive() {
-            if (ros.isConnected) {
-                console.log('Keep-alive ping at ' + new Date().toLocaleTimeString());
-            }
-
-            requestAnimationFrame(function () {
-                setTimeout(keepAlive, 4000);
+                setTimeout(function () {
+                    ros.connect('ws://' + window.location.hostname + ':9090');
+                }, 3000);
             });
         }
+
+        // Initial setup
+        setupRosCallbacks();
+
+        // Setup topic subscribers
+        function setupSubscribers() {
+            console.log("🔄 Setting up topic subscribers...");
+            
+            // Clean up existing subscribers if they exist
+            if (stateListener) {
+                stateListener.unsubscribe();
+                console.log("Unsubscribed from previous state topic");
+            }
+            if (healthListener) {
+                healthListener.unsubscribe();
+                console.log("Unsubscribed from previous health topic");
+            }
+            if (batteryListener) {
+                batteryListener.unsubscribe();
+                console.log("Unsubscribed from previous battery topic");
+            }
+            if (temperatureListener) {
+                temperatureListener.unsubscribe();
+                console.log("Unsubscribed from previous temperature topic");
+            }
+
+            // State topic subscriber
+            var stateTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/smore_bot/state',
+                messageType: 'std_msgs/String'
+            });
+
+            stateListener = stateTopic.subscribe(function (message) {
+                // Log the incoming message
+                logMessage("state", message.data);
+                
+                // Time the DOM update
+                var startTime = performance.now();
+                document.getElementById('state').textContent = message.data;
+                var endTime = performance.now();
+                
+                // Log if the update was slow
+                if (endTime - startTime > 10) {
+                    console.warn(`⚠️ Slow DOM update for 'state': ${Math.round(endTime - startTime)}ms`);
+                }
+            });
+
+            // Health topic subscriber
+            var healthTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/smore_bot/system_health',
+                messageType: 'std_msgs/Bool'
+            });
+
+            healthListener = healthTopic.subscribe(function (message) {
+                // Log the incoming message
+                logMessage("health", message.data);
+                
+                // Time the DOM update
+                var startTime = performance.now();
+                const healthElement = document.getElementById('health');
+                if (message.data) {
+                    healthElement.textContent = "OK";
+                    healthElement.className = "value status-good";
+                } else {
+                    healthElement.textContent = "ERROR";
+                    healthElement.className = "value status-error";
+                }
+                var endTime = performance.now();
+                
+                // Log if the update was slow
+                if (endTime - startTime > 10) {
+                    console.warn(`⚠️ Slow DOM update for 'health': ${Math.round(endTime - startTime)}ms`);
+                }
+            });
+
+            // Battery topic subscriber
+            var batteryTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/smore_bot/battery_level',
+                messageType: 'std_msgs/Float32'
+            });
+
+            batteryListener = batteryTopic.subscribe(function (message) {
+                // Log the incoming message
+                logMessage("battery", message.data.toFixed(1));
+                
+                // Time the DOM update
+                var startTime = performance.now();
+                const batteryElement = document.getElementById('battery');
+                batteryElement.textContent = message.data.toFixed(1) + "%";
+                if (message.data > 80) {
+                    batteryElement.className = "value status-good";
+                } else if (message.data > 40) {
+                    batteryElement.className = "value status-warning";
+                } else {
+                    batteryElement.className = "value status-error";
+                }
+                var endTime = performance.now();
+                
+                // Log if the update was slow
+                if (endTime - startTime > 10) {
+                    console.warn(`⚠️ Slow DOM update for 'battery': ${Math.round(endTime - startTime)}ms`);
+                }
+            });
+
+            // Temperature topic subscriber
+            var temperatureTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/smore_bot/temperature',
+                messageType: 'std_msgs/Float32'
+            });
+
+            temperatureListener = temperatureTopic.subscribe(function (message) {
+                // Log the incoming message
+                logMessage("temperature", message.data.toFixed(1));
+                
+                // Time the DOM update
+                var startTime = performance.now();
+                document.getElementById('temperature').textContent = message.data.toFixed(1) + "°F";
+                var endTime = performance.now();
+                
+                // Log if the update was slow
+                if (endTime - startTime > 10) {
+                    console.warn(`⚠️ Slow DOM update for 'temperature': ${Math.round(endTime - startTime)}ms`);
+                }
+            });
+            
+            console.log("✅ Topic subscribers setup complete!");
+        }
+
+        setupSubscribers();
+
+        // Tracking variables
+        var lastUpdateTime = Date.now();
+        var connectionActive = false;
+        var totalMessagesReceived = 0;
+        var lastMessageTimes = {
+            state: 0,
+            health: 0,
+            battery: 0,
+            temperature: 0
+        };
+        
+        // Enhanced logging
+        function logMessage(topic, message) {
+            var now = Date.now();
+            var timestamp = new Date().toLocaleTimeString() + "." + (now % 1000).toString().padStart(3, '0');
+            var timeSinceLast = lastMessageTimes[topic] > 0 ? (now - lastMessageTimes[topic]) + "ms" : "first";
+            
+            var logMsg = `[${timestamp}] ${topic}: ${JSON.stringify(message)} (${timeSinceLast})`;
+            console.log(logMsg);
+            
+            // Also update visual log if it exists
+            var logElement = document.getElementById('logs');
+            if (logElement) {
+                var entry = document.createElement('div');
+                entry.textContent = logMsg;
+                logElement.appendChild(entry);
+                logElement.scrollTop = logElement.scrollHeight;
+                
+                // Keep only the last 100 log entries
+                while (logElement.childElementCount > 100) {
+                    logElement.removeChild(logElement.firstChild);
+                }
+            }
+            
+            // Update times
+            lastMessageTimes[topic] = now;
+            lastUpdateTime = now;
+            totalMessagesReceived++;
+        }
+        
+        // Handle visibility changes
+        document.addEventListener('visibilitychange', function () {
+            console.log("👁️ Page visibility changed to: " + (document.hidden ? "hidden" : "visible"));
+
+            if (!document.hidden) {
+                if (Date.now() - lastUpdateTime > 5000) {
+                    console.log("⚠️ Page was hidden and updates stalled. Reconnecting...");
+                    ros.close();
+                    setTimeout(function () {
+                        ros.connect('ws://' + window.location.hostname + ':9090');
+                    }, 1000);
+                }
+            }
+        });
     </script>
 </body>
 
