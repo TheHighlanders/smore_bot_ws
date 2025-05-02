@@ -16,7 +16,8 @@ chmod +x install_ros2_jazzy.sh
 
 Manual setup for Linux Dev:
 1. Install ROS ([deb packages](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html))
-    A. Add UTF-8 Locale
+
+   A. Add UTF-8 Locale
     ```bash
     echo "Checking current locale settings:" && locale | grep -i utf-8 && echo "UTF-8 locale detected" || (echo "Setting up UTF-8 locale..." && sudo apt update && sudo apt install -y locales && sudo locale-gen en_US en_US.UTF-8 && sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 && export LANG=en_US.UTF-8 && echo "New locale settings:" && locale)
     ```
@@ -52,7 +53,7 @@ Manual setup for Linux Dev:
     sudo apt install ros-jazzy-desktop
     ```
 
-2. Add Sourcing to .bashrc
+3. Add Sourcing to .bashrc
     ```bash
     echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
     
@@ -61,12 +62,12 @@ Manual setup for Linux Dev:
     source ~/.bashrc
     ```
 
-3. Check setup:
+4. Check setup:
     ```bash
     printenv | grep -i ROS | grep -q "ROS_VERSION=2" && printenv | grep -i ROS | grep -q "ROS_PYTHON_VERSION=3" && printenv | grep -i ROS | grep -q "ROS_DISTRO=jazzy" && printenv | grep -i ROS | grep -q "ROS_DOMAIN_ID=0" && echo "All ROS environment variables are correctly set!" || echo "Some ROS environment variables are missing or incorrect."
     ```
 
-4. Check ROS works:
+5. Check ROS works:
     ```bash
     ros2 run demo_nodes_cpp talker
     ```
