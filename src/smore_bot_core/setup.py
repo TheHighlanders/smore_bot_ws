@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'smore_bot_py'
+package_name = 'smore_bot_core'
 
 setup(
     name=package_name,
@@ -14,12 +14,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='lex',
-    maintainer_email='lex@todo.todo',
+    maintainer_email='lex.k.moulton@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'state_manager = smore_bot_core.state_manager:main'
         ],
     },
 )

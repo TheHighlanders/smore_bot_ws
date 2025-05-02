@@ -44,6 +44,8 @@ Manual setup for Linux Dev:
 
     `echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc`
 
+    `echo "source ~/smore_bot_ws/install/setup.bash" >> ~/.bashrc`
+
     `source ~/.bashrc`
 
 3. Check setup:
@@ -55,5 +57,5 @@ Manual setup for Linux Dev:
     Then in another terminal:
 
     `ros2 run demo_nodes_py listener`
-    
+
     Wait for the listener to print "I heard: [Hello World: xx]" 
