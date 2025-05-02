@@ -28,6 +28,7 @@ class WebServerNode(Node):
         self.web_thread.daemon = True
         self.web_thread.start()
         
+        self.get_logger().info(f'Serving files from: {web_dir}')
         self.get_logger().info('Web server started on port 8080')
         self.get_logger().info('Connect to http://localhost:8080 to view the dashboard')
         self.get_logger().info('Make sure rosbridge_websocket is running on port 9090!')
