@@ -14,7 +14,7 @@ chmod +x install_ros2_jazzy.sh
 ./install_ros2_jazzy.sh
 ```
 
-Manual setup for Linux Dev:
+Manual setup for Dev for Linux:
 1. Install ROS ([deb packages](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html))
 
    A. Add UTF-8 Locale
