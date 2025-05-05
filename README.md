@@ -5,7 +5,7 @@ GPIO: [LGPIO](https://pypi.org/project/lgpio/)
 ROS Diagram:
 ![SMOREBOT2-ROSDIAGRAM](https://github.com/user-attachments/assets/b6c1f9b7-fe85-4e9a-a9c7-c604d9300402)
 
-Automated setup for Linux Dev:
+Automated setup for Dev for Linux:
 ```bash
 cd ~/smore_bot_ws
 
