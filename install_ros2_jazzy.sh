@@ -68,6 +68,13 @@ run_cmd "sudo apt update"
 run_cmd "sudo apt upgrade -y"
 run_cmd "sudo apt install -y ros-jazzy-desktop"
 
+# 6.1. Install additional packages
+section "Additional ROS packages"
+run_cmd sudo apt install ros-jazzy-rqt*
+run_cmd sudo apt install ros-jazzy-rosbridge-suite
+run_cmd sudo apt install ros-jazzy-urdf
+run_cmd sudo apt install ros-jazzy-xacro
+
 # 7. Add Sourcing to .bashrc
 section "Configuring .bashrc"
 if grep -q "source /opt/ros/jazzy/setup.bash" ~/.bashrc; then
@@ -80,6 +87,12 @@ if grep -q "export ROS_DOMAIN_ID=0" ~/.bashrc; then
     echo "ROS_DOMAIN_ID already in .bashrc"
 else
     run_cmd "echo \"export ROS_DOMAIN_ID=0\" >> ~/.bashrc"
+fi
+
+if grep -q "source install/setup.bash" ~/.bashrc: then
+    echo "Install/setup.bash hack already in .bashrc"
+else
+    echo "source install/setup.bash' >> ~/.bashrc"
 fi
 
 # Source the changes for this session

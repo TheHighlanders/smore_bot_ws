@@ -6,6 +6,30 @@ ROS Diagram:
 ![SMOREBOT2-ROSDIAGRAM](https://github.com/user-attachments/assets/b6c1f9b7-fe85-4e9a-a9c7-c604d9300402)
 
 Automated setup for Dev for Linux:
+
+Prep (WSL, Ubuntu, & Cloning):
+
+    Install WSL & Ubuntu:
+        We must use Ubuntu 24.04, as it is the version that ROS2 Jazzy supports, and Jazzy is the latest ROS2 release as of the start of this project
+    ```wsl --install -d Ubuntu-24.04```
+
+        Set Ubuntu as your default WSL distro (not technically required, but saves time)
+        If you have never installed any other distro, or stuff like Docker, this is unnecesary
+
+        Show all distros, the current default is noted
+        ```wsl --list```
+
+        Set Ubuntu-24.04 as default
+        ```wsl --set-default Ubuntu-24.04```
+
+    Clone the Repo to root
+        Activate WSL
+        ```wsl```
+
+        Clone this repository
+        ```git clone https://github.com/TheHighlanders/smore_bot_ws```
+
+
 ```bash
 cd ~/smore_bot_ws
 
