@@ -9,35 +9,35 @@ Automated setup for Dev for Linux:
 
 Prep (WSL, Ubuntu, & Cloning):
 
-Install WSL & Ubuntu:
+1. Install WSL & Ubuntu:
     We must use Ubuntu 24.04, as it is the version that ROS2 Jazzy supports, and Jazzy is the latest ROS2 release as of the start of this project
-```bash
-wsl --install -d Ubuntu-24.0
-```
+    ```bash
+    wsl --install -d Ubuntu-24.0
+    `2. ``
 
-Set Ubuntu as your default WSL distro (not technically required, but saves time)
-If you have never installed any other distro, or stuff like Docker, this is unnecesary
+2. Set Ubuntu as your default WSL distro (not technically required, but saves time)
+    If you have never installed any other distro, or stuff like Docker, this is unnecesary
 
-Show all distros, the current default is noted
-```bash
-wsl --list
-```
+    Show all distros, the current default is noted
+    ```bash
+    wsl --list
+    ```
 
-Set Ubuntu-24.04 as default
-```bash
-wsl --set-default Ubuntu-24.0
-```
+    Set Ubuntu-24.04 as default
+    ```bash
+    wsl --set-default Ubuntu-24.0
+    ```
 
-Clone the Repo to root
-Activate WSL
-```bash
-wsl
-```
-
-Clone this repository
-```bash
-git clone https://github.com/TheHighlanders/smore_bot_ws
-```
+3. Clone the Repo to root
+    Activate WSL
+    ```bash
+    wsl
+    ```
+    
+    Clone this repository
+    ```bash
+    git clone https://github.com/TheHighlanders/smore_bot_ws
+    ```
 
 
 ```bash
