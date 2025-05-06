@@ -11,23 +11,32 @@ Prep (WSL, Ubuntu, & Cloning):
 
     Install WSL & Ubuntu:
         We must use Ubuntu 24.04, as it is the version that ROS2 Jazzy supports, and Jazzy is the latest ROS2 release as of the start of this project
-    ```wsl --install -d Ubuntu-24.04```
+    ```bash
+    wsl --install -d Ubuntu-24.0
+    ```
 
         Set Ubuntu as your default WSL distro (not technically required, but saves time)
         If you have never installed any other distro, or stuff like Docker, this is unnecesary
 
         Show all distros, the current default is noted
-        ```wsl --list```
+        ```bash
+        wsl --list
+        ```
 
         Set Ubuntu-24.04 as default
-        ```wsl --set-default Ubuntu-24.04```
+        ```bash
+        wsl --set-default Ubuntu-24.0```
 
     Clone the Repo to root
         Activate WSL
-        ```wsl```
+        ```bash
+        wsl
+        ```
 
         Clone this repository
-        ```git clone https://github.com/TheHighlanders/smore_bot_ws```
+        ```bash
+        git clone https://github.com/TheHighlanders/smore_bot_ws
+        ```
 
 
 ```bash
