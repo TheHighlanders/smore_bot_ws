@@ -33,12 +33,13 @@ Prep (WSL, Ubuntu, & Cloning):
     ```bash
     wsl
     ```
-    
+
     Clone this repository
     ```bash
     git clone https://github.com/TheHighlanders/smore_bot_ws
     ```
 
+Run the install Script:
 
 ```bash
 cd ~/smore_bot_ws
