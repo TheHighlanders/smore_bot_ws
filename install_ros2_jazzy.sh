@@ -68,10 +68,16 @@ run_cmd "sudo apt update"
 run_cmd "sudo apt upgrade -y"
 run_cmd "sudo apt install -y ros-jazzy-desktop"
 
-# 7. Initialize and Update rosdep
-section "Setting up rosdep"
-run_cmd "sudo apt install -y python3-rosdep"
+# 6.1. Install additional packages
+section "Additional ROS packages"
+run_cmd "sudo apt install -y ros-jazzy-rqt*"
+run_cmd "sudo apt install -y ros-jazzy-rosbridge-suite"
+run_cmd "sudo apt install -y ros-jazzy-urdf"
+run_cmd "sudo apt install -y ros-jazzy-xacro"
 
+# 7. Install and Setup rosdep
+section "Installing and Setting up rosdep"
+run_cmd "sudo apt install -y python3-rosdep"
 # Check if rosdep is already initialized
 if [ ! -f "/etc/ros/rosdep/sources.list.d/20-default.list" ]; then
     run_cmd "sudo rosdep init"
@@ -92,6 +98,12 @@ if grep -q "export ROS_DOMAIN_ID=0" ~/.bashrc; then
     echo "ROS_DOMAIN_ID already in .bashrc"
 else
     run_cmd "echo \"export ROS_DOMAIN_ID=0\" >> ~/.bashrc"
+fi
+
+if grep -q "source install/setup.bash" ~/.bashrc; then
+    echo "Install/setup.bash hack already in .bashrc"
+else
+    run_cmd "echo \"source install/setup.bash\" >> ~/.bashrc"
 fi
 
 # Source the changes for this session
@@ -130,5 +142,4 @@ echo -e "${BOLD}To verify that ROS 2 is working correctly, run these commands in
 echo -e "Terminal 1: ${YELLOW}ros2 run demo_nodes_cpp talker${RESET}"
 echo -e "Terminal 2: ${YELLOW}ros2 run demo_nodes_py listener${RESET}"
 echo -e "\nYou should see messages like \"I heard: [Hello World: xx]\" in the listener terminal."
-
 echo -e "\n${GREEN}ROS 2 Jazzy installation is complete!${RESET}"
