@@ -68,7 +68,19 @@ run_cmd "sudo apt update"
 run_cmd "sudo apt upgrade -y"
 run_cmd "sudo apt install -y ros-jazzy-desktop"
 
-# 7. Add Sourcing to .bashrc
+# 7. Initialize and Update rosdep
+section "Setting up rosdep"
+run_cmd "sudo apt install -y python3-rosdep"
+
+# Check if rosdep is already initialized
+if [ ! -f "/etc/ros/rosdep/sources.list.d/20-default.list" ]; then
+    run_cmd "sudo rosdep init"
+else
+    echo "rosdep is already initialized"
+fi
+run_cmd "rosdep update"
+
+# 8. Add Sourcing to .bashrc
 section "Configuring .bashrc"
 if grep -q "source /opt/ros/jazzy/setup.bash" ~/.bashrc; then
     echo "ROS 2 sourcing already in .bashrc"
@@ -85,7 +97,7 @@ fi
 # Source the changes for this session
 source ~/.bashrc
 
-# 8. Check environment setup
+# 9. Check environment setup
 section "Verifying ROS 2 Environment"
 if printenv | grep -i ROS | grep -q "ROS_VERSION=2" && \
    printenv | grep -i ROS | grep -q "ROS_PYTHON_VERSION=3" && \
@@ -98,10 +110,25 @@ else
     printenv | grep -i ROS
 fi
 
-# 9. Instructions for testing ROS 2
+# 10. Install workspace dependencies
+# Use specified path or default to current directory
+WORKSPACE_PATH="${1:-.}"  # Use the first argument if provided, otherwise use current directory
+section "Installing dependencies for workspace"
+if [ -d "$WORKSPACE_PATH/src" ]; then
+    echo -e "Using workspace at: ${GREEN}$WORKSPACE_PATH${RESET}"
+    cd $WORKSPACE_PATH
+    run_cmd "rosdep install --from-paths src --ignore-src -r -y"
+else
+    echo -e "${YELLOW}Note: No 'src' directory found at $WORKSPACE_PATH${RESET}"
+    echo -e "This script will only install ROS 2 without resolving workspace dependencies."
+    echo -e "To install dependencies later, run: ${GREEN}rosdep install --from-paths src --ignore-src -r -y${RESET}"
+fi
+
+# 11. Instructions for testing ROS 2
 section "Testing ROS 2 Installation"
 echo -e "${BOLD}To verify that ROS 2 is working correctly, run these commands in separate terminals:${RESET}"
 echo -e "Terminal 1: ${YELLOW}ros2 run demo_nodes_cpp talker${RESET}"
 echo -e "Terminal 2: ${YELLOW}ros2 run demo_nodes_py listener${RESET}"
 echo -e "\nYou should see messages like \"I heard: [Hello World: xx]\" in the listener terminal."
+
 echo -e "\n${GREEN}ROS 2 Jazzy installation is complete!${RESET}"
