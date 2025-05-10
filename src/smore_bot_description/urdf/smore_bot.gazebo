@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <parameters>$(find smore_bot_description)/config/gazebo_controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+  
+  <gazebo reference="shoulder_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+  
+  <gazebo reference="upper_arm_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+  
+  <gazebo reference="forearm_link">
+    <material>Gazebo/Green</material>
+  </gazebo>
+  
+  <gazebo reference="wrist_link">
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+  
+  <gazebo reference="end_effector_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+  
+</robot>
