@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: smore_bot_description
+    relative_path: urdf/test.urdf.xacro
+  srdf:
+    relative_path: config/smore_bot.srdf
+  package_settings:
+    author_name: Lex
+    author_email: Lex.k.moulton@gmail.com
+    generated_timestamp: 1746845994
