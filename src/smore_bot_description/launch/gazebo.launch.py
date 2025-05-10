@@ -9,11 +9,11 @@ from launch_ros.actions import Node
 import xacro
 
 def generate_launch_description():
-    pkg_share = get_package_share_directory('simple_robot_description')
+    pkg_share = get_package_share_directory('smore_bot_description')
     gazebo_pkg_share = get_package_share_directory('gazebo_ros')
     
     # Set the path to the URDF file
-    urdf_file = os.path.join(pkg_share, 'urdf', 'simple_robot.urdf.xacro')
+    urdf_file = os.path.join(pkg_share, 'urdf', 'smore_bot.urdf.xacro')
     
     # Convert URDF to robot_description parameter using xacro
     robot_description_content = Command([
@@ -33,7 +33,7 @@ def generate_launch_description():
         executable='spawn_entity.py',
         arguments=[
             '-topic', 'robot_description',
-            '-entity', 'simple_robot'
+            '-entity', 'smore_bot'
         ],
         output='screen'
     )
